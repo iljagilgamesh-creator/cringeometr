@@ -93,10 +93,11 @@ ${bio}
       bold: data.bold || "Не пытаюсь понравиться всем. Мне достаточно своих людей.",
       funny: data.funny || "Вроде нормальный человек, но иногда исчезаю без объяснений.",
     });
-  } catch (error) {
-    console.error(error);
+    } catch (error) {
+    console.error("GEMINI ERROR:", error);
+
     res.status(500).json({
-      error: "Gemini не вернул нормальный ответ. Попробуй еще раз.",
+      error: error?.message || "Неизвестная ошибка Gemini",
     });
   }
 });
