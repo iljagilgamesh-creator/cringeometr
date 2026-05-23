@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кринжометр</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .card {
+      background: #1b1b1b;
+      border: 1px solid #333;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+      font-size: 42px;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      color: #aaa;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      box-sizing: border-box;
+      border-radius: 18px;
+      border: 1px solid #444;
+      background: #0f0f0f;
+      color: white;
+      padding: 18px;
+      font-size: 17px;
+      font-family: Arial, sans-serif;
+      resize: vertical;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 18px;
+      border: none;
+      border-radius: 18px;
+      background: #f5f5f5;
+      color: #111;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ddd;
+    }
+
+    .secondary-button {
+  background: #222;
+  color: #f5f5f5;
+  border: 1px solid #444;
+}
+
+.secondary-button:hover {
+  background: #2d2d2d;
+}
+
+.copy-status {
+  display: none;
+  margin-top: 12px;
+  color: #aaa;
+  text-align: center;
+  font-size: 14px;
+}
+
+    .result {
+      margin-top: 24px;
+      display: none;
+    }
+
+    .score {
+      font-size: 56px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .label {
+      color: #888;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+
+    .box {
+      background: #101010;
+      border: 1px solid #333;
+      border-radius: 18px;
+      padding: 16px;
+      line-height: 1.5;
+    }
+
+    .variants {
+      display: grid;
+      gap: 12px;
+    }
+
+    .variant-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .small {
+      color: #aaa;
+      font-size: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <h1>Кринжометр</h1>
+      <div class="subtitle">
+        Вставь био, анкету или описание профиля. Получишь честный разбор и нормальные варианты.
+      </div>
+
+      <textarea id="bio" placeholder="Например: люблю музыку, закаты, честность и людей с чувством юмора..."></textarea>
+
+      <button onclick="checkCringe()">Проверить кринж</button>
+
+      <div class="result" id="result">
+        <div class="label">Оценка кринжа</div>
+        <div class="score" id="score">78%</div>
+
+        <div class="label">Вайб</div>
+        <div class="box" id="vibe">Человек-заставка из 2014 года</div>
+
+        <div class="label">Что не так</div>
+        <div class="box" id="problem">
+          Слишком общие слова. Это мог написать кто угодно: студент, салон красоты, коуч или кружка.
+        </div>
+
+        <div class="label">Жесткий комментарий</div>
+        <div class="box" id="roast">
+          Ты не загадочный. Ты просто оставил людям слишком много работы по угадыванию, кто ты.
+        </div>
+
+        <div class="label">Нормальные версии</div>
+        <div class="variants">
+          <div class="box">
+            <div class="variant-title">Спокойно</div>
+            Слушаю музыку громче, чем надо. Люблю прямых людей и короткие разговоры без спектакля.
+          </div>
+          <div class="box">
+            <div class="variant-title">Дерзко</div>
+            Не обещаю быть удобным человеком, но скучно точно не будет.
+          </div>
+          <div class="box">
+            <div class="variant-title">Смешно</div>
+            Вроде нормальный, но иногда отвечаю через три рабочих дня.
+          </div>
+        </div>
+
+        <button class="secondary-button" onclick="makeHarder()">Сделать жестче</button>
+        <button class="secondary-button" onclick="makeSofter()">Сделать мягче</button>
+        <button class="secondary-button" onclick="copyResult()">Скопировать разбор</button>
+        <div class="copy-status" id="copyStatus">Скопировано ✅</div>
+
+        <div class="small">
+          Это пока тестовая версия без Gemini. Сейчас мы проверяем внешний вид и механику.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  let lastResultText = "";
+
+  let currentScore = 0;
+  let currentVibe = "";
+  let currentProblem = "";
+  let currentRoast = "";
+  let currentCalm = "";
+  let currentBold = "";
+  let currentFunny = "";
+  let currentBioOriginal = "";
+
+  async function checkCringe() {
+    const bioOriginal = document.getElementById("bio").value.trim();
+
+    if (!bioOriginal) {
+      alert("Сначала вставь текст.");
+      return;
+    }
+
+    currentBioOriginal = bioOriginal;
+    await requestCringe("normal");
+  }
+
+  async function makeHarder() {
+    if (!currentBioOriginal) {
+      alert("Сначала сделай разбор.");
+      return;
+    }
+
+    await requestCringe("hard");
+  }
+
+  async function makeSofter() {
+    if (!currentBioOriginal) {
+      alert("Сначала сделай разбор.");
+      return;
+    }
+
+    await requestCringe("soft");
+  }
+
+  async function requestCringe(mode) {
+    showLoading();
+
+    try {
+      const response = await fetch("/api/cringe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          bio: currentBioOriginal,
+          mode: mode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Ошибка запроса.");
+      }
+
+      currentScore = Math.min(99, Math.max(1, Number(data.score) || 50));
+      currentVibe = data.vibe;
+      currentProblem = data.problem;
+      currentRoast = data.roast;
+      currentCalm = data.calm;
+      currentBold = data.bold;
+      currentFunny = data.funny;
+
+      renderResult();
+    } catch (error) {
+      console.error(error);
+      document.getElementById("score").textContent = "!";
+      document.getElementById("vibe").textContent = "Ошибка";
+      document.getElementById("problem").textContent = error.message;
+      document.getElementById("roast").textContent = "Проверь, запущен ли сервер, есть ли ключ Gemini в .env и открыт ли сайт через localhost.";
+    }
+  }
+
+  function showLoading() {
+    document.getElementById("result").style.display = "block";
+    document.getElementById("score").textContent = "...";
+    document.getElementById("vibe").textContent = "Gemini думает";
+    document.getElementById("problem").textContent = "Сейчас будет разбор.";
+    document.getElementById("roast").textContent = "Если это зависло надолго — смотри ошибку в терминале.";
+
+    const variants = document.querySelectorAll(".variants .box");
+    variants[0].innerHTML = `<div class="variant-title">Спокойно</div>Готовим вариант...`;
+    variants[1].innerHTML = `<div class="variant-title">Дерзко</div>Готовим вариант...`;
+    variants[2].innerHTML = `<div class="variant-title">Смешно</div>Готовим вариант...`;
+  }
+
+  function renderResult() {
+    document.getElementById("score").textContent = currentScore + "%";
+    document.getElementById("vibe").textContent = currentVibe;
+    document.getElementById("problem").textContent = currentProblem;
+    document.getElementById("roast").textContent = currentRoast;
+
+    const variants = document.querySelectorAll(".variants .box");
+
+    variants[0].innerHTML = `<div class="variant-title">Спокойно</div>${currentCalm}`;
+    variants[1].innerHTML = `<div class="variant-title">Дерзко</div>${currentBold}`;
+    variants[2].innerHTML = `<div class="variant-title">Смешно</div>${currentFunny}`;
+
+    updateLastResultText();
+
+    document.getElementById("result").style.display = "block";
+  }
+
+  function updateLastResultText() {
+    lastResultText =
+`КРИНЖОМЕТР
+
+Текст:
+${currentBioOriginal}
+
+Оценка кринжа: ${currentScore}%
+
+Вайб:
+${currentVibe}
+
+Что не так:
+${currentProblem}
+
+Жесткий комментарий:
+${currentRoast}
+
+Нормальные версии:
+
+Спокойно:
+${currentCalm}
+
+Дерзко:
+${currentBold}
+
+Смешно:
+${currentFunny}`;
+  }
+
+  function copyResult() {
+    if (!lastResultText) {
+      alert("Сначала сделай разбор.");
+      return;
+    }
+
+    navigator.clipboard.writeText(lastResultText);
+
+    const status = document.getElementById("copyStatus");
+    status.style.display = "block";
+
+    setTimeout(() => {
+      status.style.display = "none";
+    }, 2000);
+  }
+</script>
+</body>
+</html>
