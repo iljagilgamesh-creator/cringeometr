@@ -4,349 +4,969 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Кринжометр</title>
+
   <style>
+    :root {
+      --bg: #08080b;
+      --card: rgba(22, 22, 28, 0.88);
+      --card2: #101014;
+      --text: #f5f5f7;
+      --muted: #9a9aa4;
+      --line: rgba(255,255,255,0.12);
+      --red: #ff365f;
+      --blue: #29d3ff;
+      --yellow: #f4d35e;
+      --green: #58f29a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      padding: 40px 16px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 54, 95, 0.20), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(41, 211, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(244, 211, 94, 0.09), transparent 34%),
+        var(--bg);
+      padding: 32px 16px 60px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 100% 4px;
+      opacity: 0.22;
     }
 
     .app {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      max-width: 720px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
     }
 
     .card {
-      background: #1b1b1b;
-      border: 1px solid #333;
-      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .main {
       padding: 28px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px var(--green);
+    }
+
+    .model {
+      padding: 9px 12px;
+      border: 1px solid rgba(41, 211, 255, 0.28);
+      border-radius: 999px;
+      color: #c9f4ff;
+      background: rgba(41, 211, 255, 0.08);
+      font-size: 13px;
+      white-space: nowrap;
     }
 
     h1 {
-      font-size: 42px;
-      margin: 0 0 10px;
+      margin: 0;
+      font-size: clamp(48px, 8vw, 92px);
+      line-height: 0.9;
+      letter-spacing: -0.075em;
+      text-shadow:
+        0 0 24px rgba(255, 54, 95, 0.24),
+        0 0 46px rgba(41, 211, 255, 0.16);
     }
 
     .subtitle {
-      color: #aaa;
+      max-width: 640px;
+      margin: 18px 0 24px;
+      color: #c2c2ca;
       font-size: 18px;
-      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    .input-wrap {
+      position: relative;
     }
 
     textarea {
       width: 100%;
-      min-height: 140px;
-      box-sizing: border-box;
-      border-radius: 18px;
-      border: 1px solid #444;
-      background: #0f0f0f;
-      color: white;
-      padding: 18px;
-      font-size: 17px;
-      font-family: Arial, sans-serif;
+      min-height: 178px;
       resize: vertical;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 24px;
       outline: none;
+      padding: 18px 18px 42px;
+      color: var(--text);
+      background: rgba(5,5,8,0.78);
+      font: 17px/1.5 Arial, sans-serif;
+      transition: 0.2s;
+    }
+
+    textarea:focus {
+      border-color: rgba(41,211,255,0.48);
+      box-shadow: 0 0 0 4px rgba(41,211,255,0.08);
+    }
+
+    textarea::placeholder {
+      color: #686872;
+    }
+
+    .count {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      color: #6f6f7a;
+      font-size: 13px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-top: 14px;
     }
 
     button {
-      width: 100%;
-      margin-top: 16px;
-      padding: 18px;
-      border: none;
-      border-radius: 18px;
-      background: #f5f5f5;
-      color: #111;
-      font-size: 18px;
-      font-weight: bold;
+      border: 0;
+      border-radius: 20px;
       cursor: pointer;
+      font: 800 16px/1 Arial, sans-serif;
+      transition: transform 0.16s, filter 0.16s, opacity 0.16s, background 0.16s;
     }
 
-    button:hover {
-      background: #ddd;
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
     }
 
-    .secondary-button {
-  background: #222;
-  color: #f5f5f5;
-  border: 1px solid #444;
-}
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
 
-.secondary-button:hover {
-  background: #2d2d2d;
-}
+    .primary {
+      min-height: 58px;
+      padding: 18px 22px;
+      color: #12070b;
+      background: linear-gradient(135deg, #ffffff, #ffd1dc 42%, #7deaff);
+      box-shadow: 0 12px 34px rgba(41,211,255,0.18);
+    }
 
-.copy-status {
-  display: none;
-  margin-top: 12px;
-  color: #aaa;
-  text-align: center;
-  font-size: 14px;
-}
+    .secondary {
+      min-height: 52px;
+      padding: 14px 16px;
+      color: var(--text);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: #bdbdc7;
+      background: rgba(255,255,255,0.055);
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: rgba(41,211,255,0.35);
+      color: #e7fbff;
+    }
+
+    .screen {
+      position: relative;
+      min-height: 430px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .screen::before {
+      content: "";
+      position: absolute;
+      left: -20%;
+      right: -20%;
+      top: -25%;
+      height: 34%;
+      background: linear-gradient(180deg, transparent, rgba(41,211,255,0.12), transparent);
+      animation: scan 4.2s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      from { transform: translateY(0); }
+      to { transform: translateY(560px); }
+    }
+
+    .gauge-wrap {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      flex: 1;
+      min-height: 280px;
+    }
+
+    .gauge {
+      --score: 0;
+      width: min(310px, 78vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle, #101017 0 57%, transparent 58%),
+        conic-gradient(from -90deg, var(--red) calc(var(--score) * 1%), rgba(255,255,255,0.095) 0);
+      box-shadow:
+        inset 0 0 34px rgba(0,0,0,0.70),
+        0 0 48px rgba(255,54,95,0.14);
+      transition: background 0.5s ease;
+    }
+
+    .gauge-inner {
+      width: 72%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background: #0b0b10;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .gauge-number {
+      font-size: clamp(48px, 8vw, 72px);
+      font-weight: 900;
+      letter-spacing: -0.06em;
+    }
+
+    .gauge-label {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .status {
+      position: relative;
+      z-index: 1;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      color: #d5d5dc;
+      background: rgba(0,0,0,0.24);
+      line-height: 1.45;
+    }
+
+    .loader {
+      display: none;
+      margin-top: 16px;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.09);
+    }
+
+    .loader span {
+      display: block;
+      width: 36%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--red), var(--blue));
+      animation: loading 1.05s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      from { transform: translateX(-110%); }
+      to { transform: translateX(320%); }
+    }
+
+    .error {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,77,77,0.42);
+      border-radius: 18px;
+      color: #ffd7d7;
+      background: rgba(255,77,77,0.10);
+      line-height: 1.45;
+    }
 
     .result {
-      margin-top: 24px;
       display: none;
+      margin-top: 18px;
+      padding: 24px;
     }
 
-    .score {
-      font-size: 56px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .label {
-      color: #888;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 22px;
-      margin-bottom: 8px;
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
     .box {
-      background: #101010;
-      border: 1px solid #333;
-      border-radius: 18px;
-      padding: 16px;
-      line-height: 1.5;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 22px;
+      background: rgba(7,7,10,0.62);
+      min-height: 108px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .label {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .value {
+      color: #f2f2f4;
+      font-size: 17px;
+      line-height: 1.52;
+      white-space: pre-wrap;
     }
 
     .variants {
       display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
+      margin-top: 12px;
+    }
+
+    .variant {
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.055);
     }
 
     .variant-title {
-      font-weight: bold;
-      margin-bottom: 6px;
+      margin-bottom: 9px;
+      color: #fff;
+      font-weight: 900;
     }
 
-    .small {
-      color: #aaa;
+    .variant-text {
+      color: #dcdce3;
+      font-size: 15px;
+      line-height: 1.48;
+      white-space: pre-wrap;
+    }
+
+    .result-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .copy-status {
+      display: none;
+      margin-top: 12px;
+      color: #b7fbd6;
+      text-align: center;
       font-size: 14px;
+    }
+
+    .story {
+      display: none;
       margin-top: 18px;
+      padding: 20px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,54,95,0.26), transparent 35%),
+        radial-gradient(circle at 85% 95%, rgba(41,211,255,0.18), transparent 38%),
+        #101017;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.34);
+    }
+
+    .story-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .story-score {
+      margin: 20px 0 4px;
+      font-size: 76px;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+    }
+
+    .story-vibe {
+      max-width: 680px;
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .story-footer {
+      margin-top: 20px;
+      color: #c4c4cc;
+      font-size: 14px;
+    }
+
+    .shake {
+      animation: shake 0.24s ease-in-out 2;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    @media (max-width: 920px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .screen {
+        min-height: 360px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding-top: 18px;
+      }
+
+      .main,
+      .result,
+      .screen {
+        padding: 18px;
+      }
+
+      .topline {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .buttons,
+      .result-grid,
+      .variants,
+      .result-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .box {
+        min-height: auto;
+      }
+
+      .story-score {
+        font-size: 58px;
+      }
+
+      .story-vibe {
+        font-size: 19px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="card">
-      <h1>Кринжометр</h1>
-      <div class="subtitle">
-        Вставь био, анкету или описание профиля. Получишь честный разбор и нормальные варианты.
+  <main class="app">
+    <section class="grid">
+      <div class="card main">
+        <div class="topline">
+          <div class="brand"><span class="dot"></span>народный прибор неловкости</div>
+          <div class="model">Gemini 3.5 Flash</div>
+        </div>
+
+        <h1>Кринжометр</h1>
+
+        <div class="subtitle">
+          Вставь био, статус, описание профиля или пафосный пост. Получишь процент кринжа, диагноз вайба и нормальные версии без театра.
+        </div>
+
+        <div class="input-wrap" id="inputWrap">
+          <textarea id="bio" maxlength="2400" placeholder="Например: я не кринж, я просто глубоко концептуальный..."></textarea>
+          <div class="count" id="count">0 / 2400</div>
+        </div>
+
+        <div class="buttons">
+          <button class="primary" id="checkButton" type="button">Проверить кринж</button>
+          <button class="secondary" id="exampleButton" type="button">Пример</button>
+        </div>
+
+        <div class="chips">
+          <div class="chip" data-example="Люблю музыку, закаты, честность и людей с чувством юмора. Не ищу идеал, ищу своего человека.">био для анкеты</div>
+          <div class="chip" data-example="Я не сложный, я просто не для всех. Кто понял жизнь — тот не спорит.">статус</div>
+          <div class="chip" data-example="Мой проект — это не просто услуга, это пространство смыслов, где клиент встречается с новой версией себя.">пост/продажа</div>
+        </div>
+
+        <div class="error" id="errorBox"></div>
       </div>
 
-      <textarea id="bio" placeholder="Например: люблю музыку, закаты, честность и людей с чувством юмора..."></textarea>
-
-      <button onclick="checkCringe()">Проверить кринж</button>
-
-      <div class="result" id="result">
-        <div class="label">Оценка кринжа</div>
-        <div class="score" id="score">78%</div>
-
-        <div class="label">Вайб</div>
-        <div class="box" id="vibe">Человек-заставка из 2014 года</div>
-
-        <div class="label">Что не так</div>
-        <div class="box" id="problem">
-          Слишком общие слова. Это мог написать кто угодно: студент, салон красоты, коуч или кружка.
-        </div>
-
-        <div class="label">Жесткий комментарий</div>
-        <div class="box" id="roast">
-          Ты не загадочный. Ты просто оставил людям слишком много работы по угадыванию, кто ты.
-        </div>
-
-        <div class="label">Нормальные версии</div>
-        <div class="variants">
-          <div class="box">
-            <div class="variant-title">Спокойно</div>
-            Слушаю музыку громче, чем надо. Люблю прямых людей и короткие разговоры без спектакля.
-          </div>
-          <div class="box">
-            <div class="variant-title">Дерзко</div>
-            Не обещаю быть удобным человеком, но скучно точно не будет.
-          </div>
-          <div class="box">
-            <div class="variant-title">Смешно</div>
-            Вроде нормальный, но иногда отвечаю через три рабочих дня.
+      <aside class="card screen">
+        <div class="gauge-wrap">
+          <div class="gauge" id="gauge">
+            <div class="gauge-inner">
+              <div>
+                <div class="gauge-number" id="gaugeNumber">0%</div>
+                <div class="gauge-label">уровень кринжа</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <button class="secondary-button" onclick="makeHarder()">Сделать жестче</button>
-        <button class="secondary-button" onclick="makeSofter()">Сделать мягче</button>
-        <button class="secondary-button" onclick="copyResult()">Скопировать разбор</button>
-        <div class="copy-status" id="copyStatus">Скопировано ✅</div>
+        <div class="status" id="status">
+          <span id="statusText">Прибор спит. Вставь текст и нажми проверку.</span>
+          <div class="loader" id="loader"><span></span></div>
+        </div>
+      </aside>
+    </section>
 
-        <div class="small">
-          Это пока тестовая версия без Gemini. Сейчас мы проверяем внешний вид и механику.
+    <section class="card result" id="result">
+      <div class="result-grid">
+        <div class="box">
+          <div class="label">Вайб</div>
+          <div class="value" id="vibe">—</div>
+        </div>
+
+        <div class="box">
+          <div class="label">Короткий вердикт</div>
+          <div class="value" id="verdict">—</div>
+        </div>
+
+        <div class="box wide">
+          <div class="label">Что не так</div>
+          <div class="value" id="problem">—</div>
+        </div>
+
+        <div class="box wide">
+          <div class="label">Жёсткий комментарий</div>
+          <div class="value" id="roast">—</div>
+        </div>
+
+        <div class="box wide">
+          <div class="label">Нормальные версии</div>
+
+          <div class="variants">
+            <div class="variant">
+              <div class="variant-title">Спокойно</div>
+              <div class="variant-text" id="calm">—</div>
+            </div>
+
+            <div class="variant">
+              <div class="variant-title">Дерзко</div>
+              <div class="variant-text" id="bold">—</div>
+            </div>
+
+            <div class="variant">
+              <div class="variant-title">Смешно</div>
+              <div class="variant-text" id="funny">—</div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+
+      <div class="result-buttons">
+        <button class="secondary" id="hardButton" type="button">Жёстче</button>
+        <button class="secondary" id="softButton" type="button">Мягче</button>
+        <button class="secondary" id="copyButton" type="button">Скопировать</button>
+        <button class="secondary" id="clearButton" type="button">Очистить</button>
+      </div>
+
+      <div class="copy-status" id="copyStatus">Скопировано. Можно нести в чат.</div>
+    </section>
+
+    <section class="story" id="story">
+      <div class="story-top">
+        <span>Кринжометр</span>
+        <span>карточка для Telegram</span>
+      </div>
+
+      <div class="story-score" id="storyScore">0%</div>
+      <div class="story-vibe" id="storyVibe">—</div>
+      <div class="story-footer">Скопируй разбор или сделай скрин этой карточки.</div>
+    </section>
+  </main>
 
   <script>
-  let lastResultText = "";
+    const bio = document.getElementById("bio");
+    const count = document.getElementById("count");
+    const inputWrap = document.getElementById("inputWrap");
+    const checkButton = document.getElementById("checkButton");
+    const exampleButton = document.getElementById("exampleButton");
+    const errorBox = document.getElementById("errorBox");
 
-  let currentScore = 0;
-  let currentVibe = "";
-  let currentProblem = "";
-  let currentRoast = "";
-  let currentCalm = "";
-  let currentBold = "";
-  let currentFunny = "";
-  let currentBioOriginal = "";
+    const gauge = document.getElementById("gauge");
+    const gaugeNumber = document.getElementById("gaugeNumber");
+    const statusText = document.getElementById("statusText");
+    const loader = document.getElementById("loader");
 
-  async function checkCringe() {
-    const bioOriginal = document.getElementById("bio").value.trim();
+    const result = document.getElementById("result");
+    const vibe = document.getElementById("vibe");
+    const verdict = document.getElementById("verdict");
+    const problem = document.getElementById("problem");
+    const roast = document.getElementById("roast");
+    const calm = document.getElementById("calm");
+    const bold = document.getElementById("bold");
+    const funny = document.getElementById("funny");
 
-    if (!bioOriginal) {
-      alert("Сначала вставь текст.");
-      return;
+    const hardButton = document.getElementById("hardButton");
+    const softButton = document.getElementById("softButton");
+    const copyButton = document.getElementById("copyButton");
+    const clearButton = document.getElementById("clearButton");
+    const copyStatus = document.getElementById("copyStatus");
+
+    const story = document.getElementById("story");
+    const storyScore = document.getElementById("storyScore");
+    const storyVibe = document.getElementById("storyVibe");
+
+    const examples = [
+      "Люблю музыку, закаты, честность и людей с чувством юмора. Не ищу идеал, ищу своего человека.",
+      "Я не сложный, я просто не для всех. Кто понял жизнь — тот не спорит.",
+      "Мой проект — это не просто услуга, это пространство смыслов, где клиент встречается с новой версией себя."
+    ];
+
+    const loadingTexts = [
+      "Сканирую вайб...",
+      "Ищу социальный урон...",
+      "Сверяю с базой неловкости...",
+      "Проверяю, не пахнет ли статусом из 2014...",
+      "Отделяю смысл от позы..."
+    ];
+
+    let currentText = "";
+    let currentResult = null;
+    let loadingTimer = null;
+    let loadingIndex = 0;
+    let isLoading = false;
+
+    function updateCount() {
+      count.textContent = `${bio.value.length} / ${bio.maxLength}`;
     }
 
-    currentBioOriginal = bioOriginal;
-    await requestCringe("normal");
-  }
-
-  async function makeHarder() {
-    if (!currentBioOriginal) {
-      alert("Сначала сделай разбор.");
-      return;
+    function setScore(score) {
+      const value = Math.min(99, Math.max(1, Number(score) || 50));
+      gauge.style.setProperty("--score", value);
+      gaugeNumber.textContent = value + "%";
+      storyScore.textContent = value + "%";
+      return value;
     }
 
-    await requestCringe("hard");
-  }
-
-  async function makeSofter() {
-    if (!currentBioOriginal) {
-      alert("Сначала сделай разбор.");
-      return;
+    function getVerdict(score) {
+      if (score <= 20) return "Почти безопасно. Можно выпускать в люди.";
+      if (score <= 45) return "Лёгкий социальный шум. Не смертельно.";
+      if (score <= 70) return "Кринж пошёл в рост. Нужна редактура.";
+      if (score <= 90) return "Опасная зона. Чат может напрячься.";
+      return "Эвакуируйте переписку. Прибору тяжело.";
     }
 
-    await requestCringe("soft");
-  }
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
 
-  async function requestCringe(mode) {
-    showLoading();
+      inputWrap.classList.remove("shake");
+      void inputWrap.offsetWidth;
+      inputWrap.classList.add("shake");
+    }
 
-    try {
-      const response = await fetch("/api/cringe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          bio: currentBioOriginal,
-          mode: mode
-        })
-      });
+    function clearError() {
+      errorBox.textContent = "";
+      errorBox.style.display = "none";
+    }
 
-      const data = await response.json();
+    function setLoading(value) {
+      isLoading = value;
 
-      if (!response.ok) {
-        throw new Error(data.error || "Ошибка запроса.");
+      checkButton.disabled = value;
+      hardButton.disabled = value;
+      softButton.disabled = value;
+      exampleButton.disabled = value;
+
+      checkButton.textContent = value ? "Кринжометр думает..." : "Проверить кринж";
+      loader.style.display = value ? "block" : "none";
+
+      if (value) {
+        loadingIndex = 0;
+        statusText.textContent = loadingTexts[0];
+
+        loadingTimer = setInterval(() => {
+          loadingIndex = (loadingIndex + 1) % loadingTexts.length;
+          statusText.textContent = loadingTexts[loadingIndex];
+        }, 900);
+      } else {
+        clearInterval(loadingTimer);
+        loadingTimer = null;
+      }
+    }
+
+    function showSkeleton() {
+      result.style.display = "block";
+      story.style.display = "none";
+
+      setScore(1);
+
+      vibe.textContent = "Gemini прогревает лампы";
+      verdict.textContent = "Сейчас будет диагноз.";
+      problem.textContent = "Разбираем, где текст говорит нормально, а где надел плащ загадочности.";
+      roast.textContent = "Если зависло надолго — смотри ошибку в терминале или в Vercel Logs.";
+
+      calm.textContent = "Готовим вариант...";
+      bold.textContent = "Готовим вариант...";
+      funny.textContent = "Готовим вариант...";
+    }
+
+    async function requestCringe(mode) {
+      if (isLoading) return;
+
+      const text = bio.value.trim();
+
+      if (!text) {
+        showError("Сначала вставь текст. Пустоту прибор пока не судит.");
+        return;
       }
 
-      currentScore = Math.min(99, Math.max(1, Number(data.score) || 50));
-      currentVibe = data.vibe;
-      currentProblem = data.problem;
-      currentRoast = data.roast;
-      currentCalm = data.calm;
-      currentBold = data.bold;
-      currentFunny = data.funny;
+      currentText = text;
 
-      renderResult();
-    } catch (error) {
-      console.error(error);
-      document.getElementById("score").textContent = "!";
-      document.getElementById("vibe").textContent = "Ошибка";
-      document.getElementById("problem").textContent = error.message;
-      document.getElementById("roast").textContent = "Проверь, запущен ли сервер, есть ли ключ Gemini в .env и открыт ли сайт через localhost.";
+      clearError();
+      showSkeleton();
+      setLoading(true);
+
+      try {
+        const response = await fetch("/api/cringe", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            bio: currentText,
+            mode: mode
+          })
+        });
+
+        let data;
+
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          throw new Error("Сервер вернул не JSON. Проверь /api/cringe.");
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || "Сервер не смог обработать запрос.");
+        }
+
+        const score = setScore(data.score);
+
+        currentResult = {
+          score: score,
+          vibe: data.vibe || "Вайб не распознан. Текст ушёл в туман.",
+          problem: data.problem || "Gemini не объяснил проблему. Это уже само по себе подозрительно.",
+          roast: data.roast || "Прибор хотел пошутить, но выбрал молчание.",
+          calm: data.calm || "Напиши проще и конкретнее.",
+          bold: data.bold || "Меньше тумана, больше человека.",
+          funny: data.funny || "Нормальный текст, но с лёгким запахом статуса ВК."
+        };
+
+        renderResult();
+      } catch (error) {
+        console.error(error);
+
+        setScore(1);
+
+        vibe.textContent = "Ошибка";
+        verdict.textContent = "Прибор споткнулся.";
+        problem.textContent = error.message || "Неизвестная ошибка.";
+        roast.textContent = "Если на Vercel работает, а локально нет — смотри локальный .env и запуск сервера. Если не работает на Vercel — смотри Environment Variables и Logs.";
+
+        calm.textContent = "Проверь сервер.";
+        bold.textContent = "Проверь ключ.";
+        funny.textContent = "Проверь, не решил ли Gemini уйти в монастырь.";
+
+        showError(error.message || "Ошибка запроса.");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  function showLoading() {
-    document.getElementById("result").style.display = "block";
-    document.getElementById("score").textContent = "...";
-    document.getElementById("vibe").textContent = "Gemini думает";
-    document.getElementById("problem").textContent = "Сейчас будет разбор.";
-    document.getElementById("roast").textContent = "Если это зависло надолго — смотри ошибку в терминале.";
+    function renderResult() {
+      const r = currentResult;
+      if (!r) return;
 
-    const variants = document.querySelectorAll(".variants .box");
-    variants[0].innerHTML = `<div class="variant-title">Спокойно</div>Готовим вариант...`;
-    variants[1].innerHTML = `<div class="variant-title">Дерзко</div>Готовим вариант...`;
-    variants[2].innerHTML = `<div class="variant-title">Смешно</div>Готовим вариант...`;
-  }
+      vibe.textContent = r.vibe;
+      verdict.textContent = getVerdict(r.score);
+      problem.textContent = r.problem;
+      roast.textContent = r.roast;
+      calm.textContent = r.calm;
+      bold.textContent = r.bold;
+      funny.textContent = r.funny;
 
-  function renderResult() {
-    document.getElementById("score").textContent = currentScore + "%";
-    document.getElementById("vibe").textContent = currentVibe;
-    document.getElementById("problem").textContent = currentProblem;
-    document.getElementById("roast").textContent = currentRoast;
+      storyScore.textContent = r.score + "%";
+      storyVibe.textContent = r.vibe;
+      story.style.display = "block";
 
-    const variants = document.querySelectorAll(".variants .box");
+      statusText.textContent = "Разбор готов. Можно копировать, ужесточать или смягчать.";
+    }
 
-    variants[0].innerHTML = `<div class="variant-title">Спокойно</div>${currentCalm}`;
-    variants[1].innerHTML = `<div class="variant-title">Дерзко</div>${currentBold}`;
-    variants[2].innerHTML = `<div class="variant-title">Смешно</div>${currentFunny}`;
+    function buildCopyText() {
+      if (!currentResult) return "";
 
-    updateLastResultText();
-
-    document.getElementById("result").style.display = "block";
-  }
-
-  function updateLastResultText() {
-    lastResultText =
-`КРИНЖОМЕТР
+      return `КРИНЖОМЕТР
 
 Текст:
-${currentBioOriginal}
+${currentText}
 
-Оценка кринжа: ${currentScore}%
+Оценка кринжа: ${currentResult.score}%
 
 Вайб:
-${currentVibe}
+${currentResult.vibe}
 
 Что не так:
-${currentProblem}
+${currentResult.problem}
 
-Жесткий комментарий:
-${currentRoast}
+Жёсткий комментарий:
+${currentResult.roast}
 
 Нормальные версии:
 
 Спокойно:
-${currentCalm}
+${currentResult.calm}
 
 Дерзко:
-${currentBold}
+${currentResult.bold}
 
 Смешно:
-${currentFunny}`;
-  }
-
-  function copyResult() {
-    if (!lastResultText) {
-      alert("Сначала сделай разбор.");
-      return;
+${currentResult.funny}`;
     }
 
-    navigator.clipboard.writeText(lastResultText);
+    async function copyResult() {
+      const text = buildCopyText();
 
-    const status = document.getElementById("copyStatus");
-    status.style.display = "block";
+      if (!text) {
+        showError("Сначала сделай разбор.");
+        return;
+      }
 
-    setTimeout(() => {
-      status.style.display = "none";
-    }, 2000);
-  }
-</script>
+      try {
+        await navigator.clipboard.writeText(text);
+
+        copyStatus.style.display = "block";
+
+        setTimeout(() => {
+          copyStatus.style.display = "none";
+        }, 1800);
+      } catch (error) {
+        showError("Не получилось скопировать автоматически. Выдели текст вручную.");
+      }
+    }
+
+    function clearAll() {
+      bio.value = "";
+      currentText = "";
+      currentResult = null;
+
+      setScore(1);
+      gaugeNumber.textContent = "0%";
+
+      result.style.display = "none";
+      story.style.display = "none";
+
+      statusText.textContent = "Прибор спит. Вставь текст и нажми проверку.";
+
+      clearError();
+      updateCount();
+      bio.focus();
+    }
+
+    function insertExample(text) {
+      bio.value = text;
+      updateCount();
+      clearError();
+      bio.focus();
+    }
+
+    checkButton.addEventListener("click", () => requestCringe("normal"));
+    hardButton.addEventListener("click", () => requestCringe("hard"));
+    softButton.addEventListener("click", () => requestCringe("soft"));
+    copyButton.addEventListener("click", copyResult);
+    clearButton.addEventListener("click", clearAll);
+
+    exampleButton.addEventListener("click", () => {
+      const random = examples[Math.floor(Math.random() * examples.length)];
+      insertExample(random);
+    });
+
+    document.querySelectorAll("[data-example]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        insertExample(chip.dataset.example);
+      });
+    });
+
+    bio.addEventListener("input", updateCount);
+
+    setScore(1);
+    gaugeNumber.textContent = "0%";
+    updateCount();
+  </script>
 </body>
 </html>
