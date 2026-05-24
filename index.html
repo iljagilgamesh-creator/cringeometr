@@ -512,8 +512,17 @@
       .result-grid,
       .variants,
       .result-buttons {
-        grid-template-columns: 1fr;
-      }
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.share-button {
+  border-color: rgba(41, 211, 255, 0.35);
+  background: rgba(41, 211, 255, 0.10);
+  color: #d9f8ff;
+}
 
       .box {
         min-height: auto;
@@ -628,11 +637,12 @@
       </div>
 
       <div class="result-buttons">
-        <button class="secondary" id="hardButton" type="button">Жёстче</button>
-        <button class="secondary" id="softButton" type="button">Мягче</button>
-        <button class="secondary" id="copyButton" type="button">Скопировать</button>
-        <button class="secondary" id="clearButton" type="button">Очистить</button>
-      </div>
+  <button class="secondary" id="hardButton" type="button">Жёстче</button>
+  <button class="secondary" id="softButton" type="button">Мягче</button>
+  <button class="secondary" id="copyButton" type="button">Весь разбор</button>
+  <button class="secondary share-button" id="shortCopyButton" type="button">Коротко</button>
+  <button class="secondary" id="clearButton" type="button">Очистить</button>
+</div>
 
       <div class="copy-status" id="copyStatus">Скопировано. Можно нести в чат.</div>
     </section>
@@ -674,6 +684,7 @@
     const hardButton = document.getElementById("hardButton");
     const softButton = document.getElementById("softButton");
     const copyButton = document.getElementById("copyButton");
+    const shortCopyButton = document.getElementById("shortCopyButton");
     const clearButton = document.getElementById("clearButton");
     const copyStatus = document.getElementById("copyStatus");
 
@@ -899,6 +910,20 @@ ${currentResult.bold}
 ${currentResult.funny}`;
     }
 
+    function buildShortCopyText() {
+  if (!currentResult) return "";
+
+  return `КРИНЖОМЕТР: ${currentResult.score}%
+
+Вайб:
+${currentResult.vibe}
+
+Вердикт:
+${getVerdict(currentResult.score)}
+
+Проверено народным прибором неловкости.`;
+}
+
     async function copyResult() {
       const text = buildCopyText();
 
@@ -919,6 +944,29 @@ ${currentResult.funny}`;
         showError("Не получилось скопировать автоматически. Выдели текст вручную.");
       }
     }
+
+    async function copyShortResult() {
+  const text = buildShortCopyText();
+
+  if (!text) {
+    showError("Сначала сделай разбор.");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+
+    copyStatus.textContent = "Короткая версия скопирована.";
+    copyStatus.style.display = "block";
+
+    setTimeout(() => {
+      copyStatus.style.display = "none";
+      copyStatus.textContent = "Скопировано. Можно нести в чат.";
+    }, 1800);
+  } catch (error) {
+    showError("Не получилось скопировать автоматически. Выдели текст вручную.");
+  }
+}
 
     function clearAll() {
       bio.value = "";
@@ -949,6 +997,7 @@ ${currentResult.funny}`;
     hardButton.addEventListener("click", () => requestCringe("hard"));
     softButton.addEventListener("click", () => requestCringe("soft"));
     copyButton.addEventListener("click", copyResult);
+    shortCopyButton.addEventListener("click", copyShortResult);
     clearButton.addEventListener("click", clearAll);
 
     exampleButton.addEventListener("click", () => {
